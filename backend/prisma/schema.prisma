@@ -11,3 +11,11 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// Test용 Model
+model Test {
+  id String @id @default(uuid())
+
+  // 명칭 수정
+  @@map("test")
+}
