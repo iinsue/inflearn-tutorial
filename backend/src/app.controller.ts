@@ -8,12 +8,6 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    prisma.test.create({
-      data: {
-        id: '1',
-      },
-    });
-
     return this.appService.getHello();
   }
 }
