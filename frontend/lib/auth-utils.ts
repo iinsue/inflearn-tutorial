@@ -24,3 +24,12 @@ export const requireUnauth = async () => {
     redirect("/");
   }
 };
+
+/** Server Component / Route Handler에서 JWT 발급 (세션 쿠키를 headers로 전달) */
+export const getJwtToken = async () => {
+  const { token } = await auth.api.getToken({
+    headers: await headers(),
+  });
+
+  return token;
+};
