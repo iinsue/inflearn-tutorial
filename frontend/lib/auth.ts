@@ -30,8 +30,3 @@ export const auth = betterAuth({
     autoSignIn: true,
   },
 });
-
-// Next.js API handler
-export const authHandler = async (request: Request) => {
-  return auth.handler(request);
-};
