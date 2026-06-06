@@ -13,9 +13,16 @@ model User {
   email         String? @unique
   emailVerified Boolean @default(false) @map("email_verified")
   image         String?
+  bio           String?
 
-  sessions Session[]
-  accounts Account[]
+  sessions          Session[]
+  accounts          Account[]
+  courses           Course[]
+  courseEnrollments CourseEnrollment[]
+  courseReviews     CourseReview[]
+  courseQuestions   CourseQuestion[]
+  courseComments    CourseComment[]
+  lectureActivities LectureActivity[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -68,4 +75,157 @@ model Jwks {
   expiresAt  DateTime?
 
   @@map("jwks")
+}
+
+enum LevelType {
+  BEGINNER
+  MIDDLE
+  SENIOR
+}
+
+model Course {
+  id               String    @id @default(uuid())
+  instructorId     String    @map("instructor_id")
+  instructor       User      @relation(fields: [instructorId], references: [id])
+  slug             String    @unique
+  title            String
+  shortDescription String?   @map("short_description")
+  description      String?   @map("description")
+  thumbnailUrl     String?   @map("thumbnail_url")
+  price            Int       @default(0)
+  discountPrice    Int?      @map("discount_price")
+  level            LevelType @default(BEGINNER)
+  isPublished      Boolean   @default(false) @map("is_published")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  sections    Section[]
+  lectures    Lecture[]
+  categories  CourseCategory[]
+  enrollments CourseEnrollment[]
+  reviews     CourseReview[]
+  questions   CourseQuestion[]
+
+  @@map("courses")
+}
+
+model Section {
+  id          String   @id @default(uuid())
+  courseId    String   @map("course_id")
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  order       Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lectures Lecture[]
+
+  @@map("sections")
+}
+
+model Lecture {
+  id               String   @id @default(uuid())
+  title            String
+  description      String?
+  order            Int
+  duration         Int?
+  isPreview        Boolean  @default(false) @map("is_preview")
+  sectionId        String   @map("section_id")
+  section          Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  courseId         String   @map("course_i")
+  course           Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  videoStorageInfo Json?    @map("video_storage_info")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  activities LectureActivity[]
+
+  @@map("lectures")
+}
+
+model CourseCategory {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  courses Course[]
+
+  @@map("course_categories")
+}
+
+model CourseEnrollment {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId   String   @map("course_id")
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrolledAt DateTime @default(now()) @map("enrolled_at")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, courseId])
+  @@map("course_enrollment")
+}
+
+model CourseReview {
+  id              String   @id @default(uuid())
+  content         String
+  rating          Int
+  userId          String   @map("user_id")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId        String   @map("course_id")
+  course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  instructorReply String?  @map("instructor_reply")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, courseId])
+  @@map("course_reviews")
+}
+
+model CourseQuestion {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String   @map("course_id")
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comments CourseComment[]
+
+  @@map("course_questions")
+}
+
+model CourseComment {
+  id         String         @id @default(uuid())
+  content    String
+  userId     String         @map("user_id")
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId String         @map("question_id")
+  question   CourseQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@map("course_comments")
+}
+
+model LectureActivity {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lectureId     String   @map("lecture_id")
+  lecture       Lecture  @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  progress      Int      @default(0)
+  isCompleted   Boolean  @default(false) @map("is_completed")
+  lastWatchedAt DateTime @default(now()) @map("last_watched_at")
+
+  @@unique([userId, lectureId])
+  @@map("lecture_activities")
 }
