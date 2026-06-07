@@ -1,6 +1,11 @@
 import type { Request } from 'express';
 import { LevelType, Prisma } from '@prisma/client';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -16,6 +21,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
+import { Course as CourseEntity } from 'src/_gen/prisma-class/course';
 import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 
 import { CoursesService } from './courses.service';
@@ -30,6 +36,10 @@ export class CoursesController {
   @Post()
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: '코스 생성',
+    type: CourseEntity,
+  })
   create(@Req() req: Request, @Body() createCourseDto: CreateCourseDto) {
     // user 나 sub가 없다면 401 에러 반환
     if (!req.user?.sub) {
@@ -46,6 +56,11 @@ export class CoursesController {
   @ApiQuery({ name: 'categoryIds', required: false })
   @ApiQuery({ name: 'skip', required: false })
   @ApiQuery({ name: 'take', required: false })
+  @ApiOkResponse({
+    description: '코스 목록',
+    type: CourseEntity,
+    isArray: true,
+  })
   findAll(
     @Query('title') title?: string,
     @Query('level') level?: LevelType,
@@ -88,6 +103,10 @@ export class CoursesController {
     required: false,
     description: 'section, lecture, courseReviews 등 포함할 관계 지정',
   })
+  @ApiOkResponse({
+    description: '코스 상세 정보',
+    type: CourseEntity,
+  })
   findOne(
     // ParseUUIDPipe는 Nest에서 제공하는 함수로 UUID인지 검증하고 UUID로 가져오는 함수입니다.
     @Param('id', ParseUUIDPipe) id: string,
@@ -101,6 +120,10 @@ export class CoursesController {
   @Patch(':id')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: '코스 수정',
+    type: CourseEntity,
+  })
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: Request,
@@ -118,6 +141,10 @@ export class CoursesController {
   @Delete(':id')
   @UseGuards(AccessTokenGuard)
   @ApiBearerAuth('access-token')
+  @ApiOkResponse({
+    description: '코스 삭제',
+    type: CourseEntity,
+  })
   delete(@Param('id', ParseUUIDPipe) id: string, @Req() req: Request) {
     if (!req.user?.sub) {
       throw new UnauthorizedException(
