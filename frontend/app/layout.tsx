@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import Providers from "@/config/providers";
 
 import "./globals.css";
+import SiteHeader from "@/components/site-header";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -41,7 +42,10 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
+        <Providers>
+          <SiteHeader />
+          {children}
+        </Providers>
       </body>
     </html>
   );
