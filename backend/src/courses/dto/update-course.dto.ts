@@ -1,4 +1,4 @@
-import { LevelType } from '@prisma/client';
+import { LevelType, StatusType } from '@prisma/client';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import {
   IsArray,
@@ -28,7 +28,7 @@ export class UpdateCourseDto extends PartialType(CreateCourseDto) {
   @ApiProperty({ description: '강의 상태', required: false })
   @IsString()
   @IsOptional()
-  status?: string;
+  status?: StatusType;
 
   @ApiProperty({ description: '코스 상세페이지 설명', required: false })
   @IsString()

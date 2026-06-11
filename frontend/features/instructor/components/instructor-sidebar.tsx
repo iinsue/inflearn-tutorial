@@ -1,10 +1,12 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
 import { toast } from "sonner";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
+
+import { cn } from "@/lib/utils";
+
+import { Button } from "@/components/ui/button";
 
 const sidebarItems = [
   {
@@ -68,8 +70,8 @@ export const InstructorSidebar = () => {
             key={item.label}
             variant="link"
             className={cn(
-              "justify-start w-full text-base font-medium",
-              isActive && "text-green-700",
+              "justify-start w-full text-base font-medium text-muted-foreground",
+              isActive && "text-sidebar-primary",
             )}
             asChild={!isPreparing}
           >

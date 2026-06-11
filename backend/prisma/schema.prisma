@@ -85,26 +85,31 @@ model Jwks {
 
 enum LevelType {
   BEGINNER
-  MIDDLE
-  SENIOR
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum StatusType {
+  PUBLISHED
+  DRAFT
 }
 
 model Course {
-  id               String    @id @default(uuid())
-  instructorId     String    @map("instructor_id")
-  instructor       User      @relation(fields: [instructorId], references: [id])
-  slug             String    @unique
+  id               String     @id @default(uuid())
+  instructorId     String     @map("instructor_id")
+  instructor       User       @relation(fields: [instructorId], references: [id])
+  slug             String     @unique
   title            String
-  shortDescription String?   @map("short_description")
-  description      String?   @map("description")
-  thumbnailUrl     String?   @map("thumbnail_url")
-  price            Int       @default(0)
-  discountPrice    Int?      @map("discount_price")
-  level            LevelType @default(BEGINNER)
-  status           String    @default("DRAFT")
-  isPublished      Boolean   @default(false) @map("is_published")
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  shortDescription String?    @map("short_description")
+  description      String?    @map("description")
+  thumbnailUrl     String?    @map("thumbnail_url")
+  price            Int        @default(0)
+  discountPrice    Int?       @map("discount_price")
+  level            LevelType  @default(BEGINNER)
+  status           StatusType @default(DRAFT)
+  isPublished      Boolean    @default(false) @map("is_published")
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
   sections    Section[]
   lectures    Lecture[]

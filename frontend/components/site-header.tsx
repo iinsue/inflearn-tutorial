@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { LayersIcon, SearchIcon } from "lucide-react";
 
 import * as api from "@/lib/api";
@@ -8,8 +12,18 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 
-const SiteHeader = async () => {
-  const categories = await api.getAllCategories();
+const SiteHeader = () => {
+  const pathname = usePathname();
+  const { data: categories } = useQuery({
+    queryFn: api.getAllCategories,
+    queryKey: ["categories"],
+    staleTime: Infinity,
+  });
+
+  const isSiteHeaderNeeded = !pathname.includes("/course/");
+  const isCategoryNeeded = pathname == "/" || pathname.includes("/courses");
+
+  if (!isSiteHeaderNeeded) return null;
 
   return (
     <header className="w-full border-b bg-background">
@@ -84,22 +98,24 @@ const SiteHeader = async () => {
       </div>
 
       {/* 하단 카테고리 */}
-      <div className="px-8">
-        <nav className="flex gap-6 py-4 overflow-x-auto scrollbar-none justify-center">
-          {categories.data
-            ? categories.data.map((category) => (
-                <Link key={category.id} href={`/courses/${category.slug}`}>
-                  <div className="flex flex-col items-center min-w-[72px] text-muted-foreground hover:text-[#1dc078] cursor-pointer transition-colors">
-                    <LayersIcon size={28} className="mb-1" />
-                    <span className="text-xs font-medium whitespace-nowrap">
-                      {category.name}
-                    </span>
-                  </div>
-                </Link>
-              ))
-            : []}
-        </nav>
-      </div>
+      {isCategoryNeeded && (
+        <div className="px-8">
+          <nav className="flex gap-6 py-4 overflow-x-auto scrollbar-none justify-center">
+            {categories && categories.data
+              ? categories.data.map((category) => (
+                  <Link key={category.id} href={`/courses/${category.slug}`}>
+                    <div className="flex flex-col items-center min-w-[72px] text-muted-foreground hover:text-[#1dc078] cursor-pointer transition-colors">
+                      <LayersIcon size={28} className="mb-1" />
+                      <span className="text-xs font-medium whitespace-nowrap">
+                        {category.name}
+                      </span>
+                    </div>
+                  </Link>
+                ))
+              : []}
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
