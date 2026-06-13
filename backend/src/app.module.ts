@@ -10,6 +10,7 @@ import { CoursesModule } from './courses/courses.module';
 import { LecturesModule } from './lectures/lectures.module';
 import { SectionsModule } from './sections/sections.module';
 import { CategoriesModule } from './categories/categories.module';
+import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CategoriesModule } from './categories/categories.module';
     SectionsModule,
     LecturesModule,
     CategoriesModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
