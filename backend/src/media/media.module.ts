@@ -3,9 +3,11 @@ import { MulterModule } from '@nestjs/platform-express';
 
 import { MediaService } from './media.service';
 import { MediaController } from './media.controller';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     MulterModule.register({
       limits: {
         // ~ 30MB
