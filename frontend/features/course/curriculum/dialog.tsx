@@ -13,13 +13,15 @@ import { Lecture } from "@/generated/openapi-client";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { CKEditor } from "@/components/ckeditor";
+import CKEditor from "@/components/ckeditor";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface EditLectureDialogProps {
   isOpen: boolean;
@@ -100,9 +102,10 @@ export const EditLectureDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="sm:max-w-[700px] max-h-screen overflow-scroll scrollbar-none">
         <DialogHeader>
-          <DialogTitle>강의 수정</DialogTitle>
+          <DialogTitle className="text-lg font-bold">강의 수정</DialogTitle>
+          <DialogDescription></DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -125,7 +128,7 @@ export const EditLectureDialog = ({
                 <video
                   autoPlay={true}
                   controls={true}
-                  src={form.videoStorageInfo.url}
+                  src={form.videoStorageInfo.cloudFront.url}
                 />
               </div>
             )}
