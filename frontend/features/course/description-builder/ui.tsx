@@ -65,8 +65,11 @@ export const DescriptionBuilderUI = ({ course }: Props) => {
 
   const updateCourseDescriptionMutation = useMutation({
     mutationFn: () =>
-      api.updateCourse(course.id, { description: courseDescription }),
-    onSuccess: () => {
+      api.updateCourse(course.id, {
+        ...course,
+        description: courseDescription,
+      }),
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: ["course", course.id],
       });

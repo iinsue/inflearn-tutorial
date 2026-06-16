@@ -2,7 +2,6 @@ import { LevelType, StatusType } from '@prisma/client';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import {
   IsArray,
-  IsBoolean,
   IsNumber,
   IsOptional,
   IsString,
@@ -52,10 +51,6 @@ export class UpdateCourseDto extends PartialType(CreateCourseDto) {
   @ApiProperty({ description: '코스 난이도', required: false })
   @IsString()
   level: LevelType;
-
-  @ApiProperty({ description: '코스 게시여부', required: false })
-  @IsBoolean()
-  isPublished: boolean;
 
   @ApiProperty({ description: '코스 카테고리 ID 목록', required: false })
   @IsArray()

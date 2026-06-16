@@ -41,7 +41,6 @@ const formSchema = z.object({
   discountPrice: z.string(),
   level: z.enum(LevelType),
   status: z.enum(StatusType),
-  isPublished: z.boolean(),
   slug: z.string(),
 });
 
@@ -73,7 +72,6 @@ export const EditCourseUI = ({ course }: Props) => {
       discountPrice: course.discountPrice?.toString() ?? "0",
       level: course.level,
       status: course.status,
-      isPublished: course.isPublished ?? false,
       slug: course.slug ?? "",
     },
   });

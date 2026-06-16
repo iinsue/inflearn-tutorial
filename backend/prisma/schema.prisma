@@ -107,7 +107,6 @@ model Course {
   discountPrice    Int?       @map("discount_price")
   level            LevelType  @default(BEGINNER)
   status           StatusType @default(DRAFT)
-  isPublished      Boolean    @default(false) @map("is_published")
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
 
