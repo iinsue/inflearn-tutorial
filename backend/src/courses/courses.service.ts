@@ -5,11 +5,11 @@ import {
 } from '@nestjs/common';
 import { Course, Prisma } from '@prisma/client';
 
+import slugify from 'lib/slugify';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import slugfy from 'slug';
 
 @Injectable()
 export class CoursesService {
@@ -22,7 +22,7 @@ export class CoursesService {
     return this.prisma.client.course.create({
       data: {
         title: createCourseDto.title,
-        slug: slugfy(createCourseDto.title),
+        slug: slugify(createCourseDto.title),
         instructorId: userId,
         status: 'DRAFT',
       },

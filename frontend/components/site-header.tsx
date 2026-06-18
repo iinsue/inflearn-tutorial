@@ -1,21 +1,26 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { SearchIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { LayersIcon, SearchIcon } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 
 import * as api from "@/lib/api";
+import { authClient } from "@/lib/auth-client";
+import { CATEGORY_ICONS } from "@/app/constants/category-icons";
 
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { Separator } from "./ui/separator";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 const SiteHeader = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const { data: profile, isPending } = authClient.useSession();
 
   const { data: categories } = useQuery({
     queryFn: api.getAllCategories,
@@ -23,11 +28,15 @@ const SiteHeader = () => {
     staleTime: Infinity,
   });
 
-  const { data: profile } = useQuery({
-    queryFn: api.getProfile,
-    queryKey: ["profile"],
-    staleTime: Infinity,
-  });
+  const onSignOut = () => {
+    authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/signin");
+        },
+      },
+    });
+  };
 
   const isSiteHeaderNeeded = !pathname.includes("/course/");
   const isCategoryNeeded = pathname == "/" || pathname.includes("/courses");
@@ -97,40 +106,66 @@ const SiteHeader = () => {
         </Link>
 
         {/* Avatar + Popover */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <div className="ml-2 cursor-pointer">
-              <Avatar>
-                {profile && profile?.data?.image ? (
-                  <img
-                    src={profile.data.image}
-                    alt="avatar"
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                ) : (
-                  <AvatarFallback>
-                    <span role="img" aria-label="user">
-                      &#x1F464;
-                    </span>
-                  </AvatarFallback>
-                )}
-              </Avatar>
-            </div>
-          </PopoverTrigger>
-
-          <PopoverContent align="end" className="w-56 p-0">
-            <button
-              className="w-full text-left px-4 py-3 hover:bg-gray-100 focus:outline-none"
-              onClick={() => {
-                router.push("/my/settings/account");
-              }}
-            >
-              <div className="font-semibold text-gray-800">
-                {profile?.data?.name || profile?.data?.email || "내 계정"}
+        {!profile || isPending ? (
+          <Button
+            variant="outline"
+            className="ml-2 border-gray-200 font-semibold hover:border-[#1dc078] hover:text-[#1dc078]"
+            asChild
+          >
+            <Link href="/signin">로그인</Link>
+          </Button>
+        ) : (
+          <Popover>
+            <PopoverTrigger asChild>
+              <div className="ml-2 cursor-pointer">
+                <Avatar>
+                  {profile.user.image ? (
+                    <img
+                      src={profile.user.image}
+                      alt="avatar"
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    <AvatarFallback>
+                      <span role="img" aria-label="user">
+                        &#x1F464;
+                      </span>
+                    </AvatarFallback>
+                  )}
+                </Avatar>
               </div>
-            </button>
-          </PopoverContent>
-        </Popover>
+            </PopoverTrigger>
+
+            <PopoverContent align="end" className="w-56 p-0">
+              <div className="border-b border-gray-100 px-4 py-3">
+                <div className="font-semibold text-gray-800">
+                  {profile.user.name || profile.user.email || "내 계정"}
+                </div>
+
+                {profile.user.email && (
+                  <div className="mt-1 text-xs text-gray-500">
+                    {profile.user.email}
+                  </div>
+                )}
+              </div>
+
+              <button
+                className="w-full text-left px-4 py-3 hover:bg-gray-100 focus:outline-none"
+                onClick={() => {
+                  router.push("/my/settings/account");
+                }}
+              >
+                <div className="font-semibold text-gray-800">프로필 수정</div>
+              </button>
+
+              <Separator />
+
+              <Button className="mx-2 mb-4 cursor-pointer" onClick={onSignOut}>
+                로그아웃
+              </Button>
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
 
       {/* 하단 카테고리 */}
@@ -141,7 +176,13 @@ const SiteHeader = () => {
               ? categories.data.map((category) => (
                   <Link key={category.id} href={`/courses/${category.slug}`}>
                     <div className="flex flex-col items-center min-w-[72px] text-muted-foreground hover:text-[#1dc078] cursor-pointer transition-colors">
-                      <LayersIcon size={28} className="mb-1" />
+                      {/* <LayersIcon size={28} className="mb-1" /> */}
+                      {React.createElement(
+                        CATEGORY_ICONS[category.slug] ||
+                          CATEGORY_ICONS["default"],
+                        { size: 28, className: "mb-1" },
+                      )}
+
                       <span className="text-xs font-medium whitespace-nowrap">
                         {category.name}
                       </span>

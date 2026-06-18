@@ -22,7 +22,7 @@ export const InstructorPageName = () => {
 
   return (
     <div className="w-full bg-gray-700">
-      <div className="w-6xl mx-auto text-2xl text-muted font-bold py-4 px-2">
+      <div className="w-6xl mx-auto text-2xl text-muted font-bold py-4 px-8">
         {title}
       </div>
     </div>
