@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { LayersIcon, SearchIcon } from "lucide-react";
 
@@ -11,12 +11,21 @@ import * as api from "@/lib/api";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 const SiteHeader = () => {
+  const router = useRouter();
   const pathname = usePathname();
+
   const { data: categories } = useQuery({
     queryFn: api.getAllCategories,
     queryKey: ["categories"],
+    staleTime: Infinity,
+  });
+
+  const { data: profile } = useQuery({
+    queryFn: api.getProfile,
+    queryKey: ["profile"],
     staleTime: Infinity,
   });
 
@@ -87,14 +96,41 @@ const SiteHeader = () => {
           </Button>
         </Link>
 
-        {/* Avatar */}
-        <Avatar className="ml-2">
-          <AvatarFallback>
-            <span role="img" aria-label="user">
-              &#x1F464;
-            </span>
-          </AvatarFallback>
-        </Avatar>
+        {/* Avatar + Popover */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <div className="ml-2 cursor-pointer">
+              <Avatar>
+                {profile && profile?.data?.image ? (
+                  <img
+                    src={profile.data.image}
+                    alt="avatar"
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <AvatarFallback>
+                    <span role="img" aria-label="user">
+                      &#x1F464;
+                    </span>
+                  </AvatarFallback>
+                )}
+              </Avatar>
+            </div>
+          </PopoverTrigger>
+
+          <PopoverContent align="end" className="w-56 p-0">
+            <button
+              className="w-full text-left px-4 py-3 hover:bg-gray-100 focus:outline-none"
+              onClick={() => {
+                router.push("/my/settings/account");
+              }}
+            >
+              <div className="font-semibold text-gray-800">
+                {profile?.data?.name || profile?.data?.email || "내 계정"}
+              </div>
+            </button>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* 하단 카테고리 */}
