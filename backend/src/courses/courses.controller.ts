@@ -17,8 +17,8 @@ import {
   Post,
   Query,
   Req,
-  UnauthorizedException,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 import { Course as CourseEntity } from 'src/_gen/prisma-class/course';
@@ -27,6 +27,8 @@ import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { SearchCourseDto } from './dto/search-course.dto';
+import { SearchCourseResponseDto } from './dto/search-response.dto';
 
 @ApiTags('코스')
 @Controller('courses')
@@ -180,5 +182,14 @@ export class CoursesController {
     }
 
     return this.coursesService.delete(id, req.user.sub);
+  }
+
+  @Post('search')
+  @ApiOkResponse({
+    description: '코스 검색',
+    type: SearchCourseResponseDto,
+  })
+  search(@Body() searchCourseDto: SearchCourseDto) {
+    return this.coursesService.searchCourses(searchCourseDto);
   }
 }

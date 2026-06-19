@@ -10,6 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { SearchCourseDto } from './dto/search-course.dto';
 
 @Injectable()
 export class CoursesService {
@@ -111,5 +112,86 @@ export class CoursesService {
     });
 
     return course;
+  }
+
+  // 검색 메서드
+  async searchCourses(searchCourseDto: SearchCourseDto) {
+    const { q, category, priceRange, sortBy, order, page, pageSize } =
+      searchCourseDto;
+    const where: Prisma.CourseWhereInput = {};
+
+    // 키워드 검색 (강의명, 강사명에서 부분 일치)
+    if (q) {
+      where.OR = [
+        { title: { contains: q, mode: 'insensitive' } },
+        { instructor: { name: { contains: q, mode: 'insensitive' } } },
+      ];
+    }
+
+    // 카테고리 필터
+    if (category) {
+      where.categories = {
+        some: { id: category },
+      };
+    }
+
+    // 가격 범위 필터
+    if (priceRange) {
+      const priceConditions: any = {};
+
+      if (priceRange.min !== undefined) {
+        priceConditions.gte = priceRange.min;
+      }
+
+      if (Object.keys(priceConditions).length > 0) {
+        where.price = priceConditions;
+      }
+    }
+
+    // 정렬 조건
+    const orderBy: Prisma.CourseOrderByWithRelationInput = {};
+    if (sortBy === 'price') {
+      orderBy.price = order as 'asc' | 'desc';
+    }
+
+    // 페이지네이션 계산
+    const skip = (page - 1) * pageSize;
+    const totalItems = await this.prisma.client.course.count({ where });
+
+    // 강의 목록 조회
+    const courses = await this.prisma.client.course.findMany({
+      where,
+      orderBy,
+      skip,
+      take: pageSize,
+      include: {
+        categories: true,
+        instructor: {
+          select: { id: true, name: true },
+        },
+        _count: {
+          select: { enrollments: true, reviews: true },
+        },
+      },
+    });
+
+    // 페이지네이션 정보 계산
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const hasNext = page < totalPages;
+    const hasPrev = page > 1;
+
+    return {
+      success: true,
+      data: {
+        courses: courses as any[],
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems,
+          hasNext,
+          hasPrev,
+        },
+      },
+    };
   }
 }
