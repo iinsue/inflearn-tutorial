@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: process.env.CLOUDFRONT_DOMAIN!,
       },
+      {
+        protocol: "https",
+        hostname: "cdn.inflearn.com",
+      },
     ],
   },
   experimental: {
