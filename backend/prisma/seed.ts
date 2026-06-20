@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { LevelType, StatusType } from '@prisma/client';
 
-import slugify from 'lib/slugify';
-import { prisma } from 'src/lib/prisma';
+import slugify from '../lib/slugify';
+import { prisma } from '../src/lib/prisma';
 
 async function main() {
   await prisma.$connect();
