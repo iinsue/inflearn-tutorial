@@ -11,6 +11,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { SearchCourseDto } from './dto/search-course.dto';
+import { CourseDetailDto } from './dto/course-detail.dto';
 
 @Injectable()
 export class CoursesService {
@@ -48,16 +49,71 @@ export class CoursesService {
     });
   }
 
-  async findOne(
-    id: string,
-    include?: Prisma.CourseInclude,
-  ): Promise<Course | null> {
+  async findOne(id: string): Promise<CourseDetailDto | null> {
     const course = await this.prisma.client.course.findUnique({
       where: { id },
-      include: include,
+      include: {
+        instructor: true,
+        categories: true,
+        reviews: {
+          include: {
+            user: { select: { id: true, name: true, image: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+        enrollments: true,
+        sections: {
+          include: {
+            lectures: {
+              select: {
+                id: true,
+                title: true,
+                isPreview: true,
+                duration: true,
+                order: true,
+              },
+              orderBy: { order: 'asc' },
+            },
+          },
+
+          orderBy: { order: 'asc' },
+        },
+
+        _count: {
+          select: { lectures: true, enrollments: true, reviews: true },
+        },
+      },
     });
 
-    return course;
+    if (!course) {
+      return null;
+    }
+
+    const averageRating =
+      course.reviews.length > 0
+        ? course.reviews.reduce((sum, review) => sum + review.rating, 0) /
+          course.reviews.length
+        : 0;
+
+    const totalDuration = course.sections.reduce((sum, section) => {
+      return (
+        sum +
+        section.lectures.reduce((lecSum, lecture) => {
+          return lecSum + (lecture.duration || 0);
+        }, 0)
+      );
+    }, 0);
+
+    const result = {
+      ...course,
+      totalEnrollments: course._count.enrollments,
+      averabeRating: Math.round(averageRating * 10) / 10,
+      totalReviews: course._count.reviews,
+      totalLectures: course._count.lectures,
+      totalDuration,
+    };
+
+    return result as unknown as CourseDetailDto;
   }
 
   async update(

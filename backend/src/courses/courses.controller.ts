@@ -28,6 +28,7 @@ import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { SearchCourseDto } from './dto/search-course.dto';
+import { CourseDetailDto } from './dto/course-detail.dto';
 import { SearchCourseResponseDto } from './dto/search-response.dto';
 
 @ApiTags('코스')
@@ -100,50 +101,12 @@ export class CoursesController {
   }
 
   @Get(':id')
-  @ApiQuery({
-    name: 'include',
-    required: false,
-    description: 'section, lecture, courseReviews 등 포함할 관계 지정',
-  })
   @ApiOkResponse({
     description: '코스 상세 정보',
-    type: CourseEntity,
+    type: CourseDetailDto,
   })
-  findOne(
-    // ParseUUIDPipe는 Nest에서 제공하는 함수로 UUID인지 검증하고 UUID로 가져오는 함수입니다.
-    @Param('id', ParseUUIDPipe) id: string,
-    @Query('include') include?: string,
-  ) {
-    const includeArray = include ? include.split(',') : undefined;
-
-    let includeObject: Prisma.CourseInclude;
-
-    if (
-      includeArray?.includes('sections') &&
-      includeArray?.includes('lectures')
-    ) {
-      const otherInclude = includeArray.filter(
-        (item) => !['sections', 'lectures'].includes(item),
-      );
-
-      includeObject = {
-        sections: {
-          include: {
-            lectures: {
-              orderBy: { order: 'asc' },
-            },
-          },
-          orderBy: { order: 'asc' },
-        },
-        ...otherInclude.map((item) => ({ [item]: true })),
-      };
-    } else {
-      includeObject = {
-        ...includeArray?.map((item) => ({ [item]: true })),
-      } as Prisma.CourseInclude;
-    }
-
-    return this.coursesService.findOne(id, includeObject);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.coursesService.findOne(id);
   }
 
   @Patch(':id')
