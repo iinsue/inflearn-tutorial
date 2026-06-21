@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { SearchIcon } from "lucide-react";
@@ -21,6 +21,8 @@ const SiteHeader = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { data: profile, isPending } = authClient.useSession();
+
+  const [search, setSearch] = useState("");
 
   const { data: categories } = useQuery({
     queryFn: api.getAllCategories,
@@ -44,7 +46,7 @@ const SiteHeader = () => {
   if (!isSiteHeaderNeeded) return null;
 
   return (
-    <header className="w-full border-b bg-background">
+    <header className="w-full relative bg-background">
       {/* 상단 헤더 */}
       <div className="flex items-center justify-between px-8 py-3 gap-4">
         {/* 로고 */}
@@ -78,17 +80,31 @@ const SiteHeader = () => {
 
         {/* 검색창 + 아이콘 */}
         <div className="flex-1 flex justify-center">
-          <div className="relative flex w-full max-w-xl items-center">
+          <div className="relative flex w-full items-center">
             <Input
               type="text"
               placeholder="나의 진짜 성장을 도와줄 실무 강의를 찾아보세요"
               autoComplete="off"
               className="w-full bg-accent focus-visible:ring-[#1dc078] pr-10"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  if (search.trim()) {
+                    router.push(`/search?q=${search}`);
+                  }
+                }
+              }}
             />
             <button
               type="button"
               tabIndex={-1}
               className="absolute right-2 p-1 text-muted-foreground hover:text-[#1dc078] transition-colors"
+              onClick={() => {
+                if (search.trim()) {
+                  router.push(`/search?q=${search}`);
+                }
+              }}
             >
               <SearchIcon size={20} />
             </button>
@@ -171,7 +187,7 @@ const SiteHeader = () => {
       {/* 하단 카테고리 */}
       {isCategoryNeeded && (
         <div className="px-8">
-          <nav className="flex gap-6 py-4 overflow-x-auto scrollbar-none justify-center">
+          <nav className="flex gap-6 py-4 overflow-x-auto scrollbar-none justify-between">
             {categories && categories.data
               ? categories.data.map((category) => (
                   <Link key={category.id} href={`/courses/${category.slug}`}>
@@ -193,6 +209,9 @@ const SiteHeader = () => {
           </nav>
         </div>
       )}
+
+      {/* 구분선 */}
+      <div className="border-b absolute bottom-0 w-screen left-1/2 -translate-x-1/2" />
     </header>
   );
 };

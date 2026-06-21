@@ -131,7 +131,7 @@ export class CoursesService {
     // 카테고리 필터
     if (category) {
       where.categories = {
-        some: { id: category },
+        some: { slug: category },
       };
     }
 
