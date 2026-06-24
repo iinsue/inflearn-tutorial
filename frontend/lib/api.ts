@@ -55,10 +55,9 @@ export const updateCourse = async (
   return { data, error };
 };
 
-export const getCourseById = async (id: string, include?: string) => {
+export const getCourseById = async (id: string) => {
   const { data, error } = await coursesControllerFindOne({
     path: { id },
-    query: { include: include ?? "sections,lectures" },
   });
 
   return { data, error };
