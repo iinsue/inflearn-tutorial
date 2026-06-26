@@ -40,7 +40,9 @@ const SiteHeader = () => {
     });
   };
 
-  const isSiteHeaderNeeded = !pathname.includes("/course/");
+  const isSiteHeaderNeeded = !pathname.match(
+    /^\/course\/[0-9a-f-]+(\/edit|\/edit\/.*)$/,
+  );
   const isCategoryNeeded = pathname == "/" || pathname.includes("/courses");
 
   if (!isSiteHeaderNeeded) return null;
